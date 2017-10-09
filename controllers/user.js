@@ -23,7 +23,7 @@ function saveUser(req, res) {
 			user.name = params.name
 			user.surname = params.surname
 			user.email = params.email
-			user.role = 'ROLE_ADMIN'
+			user.role =  params.role
 			user.image = null	
 
 		let promise = new Promise((resolve, reject) => {
@@ -31,11 +31,7 @@ function saveUser(req, res) {
 				if(err){
 					reject(new Error('Error al comprobar el usuario'))
 				}else{
-					if(!issetUser){
-						resolve(true)
-					}else{
-						reject(new Error('El usuario ya existe'))
-					}
+					(!issetUser) ? resolve(true) : reject(new Error('El usuario ya existe'))
 				}
 			})
 		})
@@ -49,11 +45,9 @@ function saveUser(req, res) {
 						if(err){
 							res.status(500).send({message: 'Error al guardar el usuario'})
 						}else{
-							if(!userStored){
-								res.status(404).send({message: 'No se ha registrado el usuario'})
-							}else{
-								res.status(200).send({userStored});
-							}
+							(!userStored) 
+								? res.status(404).send({message: 'No se ha registrado el usuario'})
+								: res.status(200).send({userStored})							
 						}
 					})
 				})
@@ -77,11 +71,7 @@ function login(req, res) {
 			if(err){
 				reject(new Error('Error al comprobar el usuario'))
 			}else{
-				if(!user){
-					reject(new Error('El no existe'))
-				}else{
-					resolve(user)
-				}
+				(!user) ? reject(new Error('El usuario no existe')) : resolve(user)				
 			}
 		})
 	})
@@ -90,11 +80,9 @@ function login(req, res) {
 		.then((dataPromise) => {
 			bcrypt.compare(password, dataPromise.password, (err, check) => {
 				if(check){
-					if(params.gettoken){
-						res.status(200).send({token: jwt.createToken(dataPromise)})
-					}else{
-						res.status(200).send(dataPromise)
-					}
+					(params.gettoken) 
+						? res.status(200).send({token: jwt.createToken(dataPromise)})
+						: res.status(200).send({user: dataPromise})					
 				}else{
 					res.status(404).send({message: 'Error al iniciar sesión :-('})
 				}
@@ -104,8 +92,6 @@ function login(req, res) {
 			res.status(200).send({ message: err.message })
 			console.log(err.message)
 		})
-
-	// res.status(200).send({message: 'Metodo login...'})
 }
 
 function updateUser(req, res) {
@@ -119,16 +105,12 @@ function updateUser(req, res) {
 			if(err){
 				res.status(500).send({message: 'Error al actualizar el usuario'})
 			}else{
-				if(!userUpadate){
-					res.status(404).send({message: 'No se ha podido actualizar el usuario'})
-				}else{
-					res.status(200).send({userUpadate})
-				}
+				(!userUpadate)
+					? res.status(404).send({message: 'No se ha podido actualizar el usuario'})
+					: res.status(200).send({userUpadate})			
 			}
 		})
 	}
-
-	// res.status(200).send({ message: 'Actualizar usuario' })
 }
 
 function uploadImage(req, res) {
@@ -150,29 +132,33 @@ function uploadImage(req, res) {
 						if(err){
 							res.status(500).send({message: 'Error al actualizar el usuario'})
 						}else{
-							if(!userUpadate){
-								res.status(404).send({message: 'No se ha podido actualizar el usuario'})
-							}else{
-								res.status(200).send({user: userUpadate, image: fileName})
-							}
+							(!userUpadate)
+								? res.status(404).send({message: 'No se ha podido actualizar el usuario'})
+								: res.status(200).send({user: userUpadate, image: fileName})
+							// if(!userUpadate){
+							// 	res.status(404).send({message: 'No se ha podido actualizar el usuario'})
+							// }else{
+							// 	res.status(200).send({user: userUpadate, image: fileName})
+							// }
 						}
 					})
 				}
 		}else{
 			fs.unlink(filePath, (err) => {
-				if(err){
-					res.status(200).send({ message: 'Extensión no Válida y fichero no borrado' })
-				}else{
-					res.status(200).send({ message: 'Extensión no Válida' })
-				}
+				(err)
+					? res.status(200).send({ message: 'Extensión no Válida y fichero no borrado' })
+					: res.status(200).send({ message: 'Extensión no Válida' })
+				// if(err){
+				// 	res.status(200).send({ message: 'Extensión no Válida y fichero no borrado' })
+				// }else{
+				// 	res.status(200).send({ message: 'Extensión no Válida' })
+				// }
 			})
 		}
 		
 	}else{
 		res.status(200).send({ message: 'No se ha subido imagen' })
 	}
-
-	// res.status(200).send({ message: 'Subir imagen' })
 }
 
 function getImageFile(req, res){
@@ -181,15 +167,15 @@ function getImageFile(req, res){
 
 			console.log(pathFile)
 	fs.exists(pathFile, (exists) => {
-		if(exists){
-			res.sendFile(path.resolve(pathFile))
-		}else{
-			res.status(404).send({message: 'La imagen no existe'})
-		}
+		(exists) ? res.sendFile(path.resolve(pathFile)) : res.status(404).send({message: 'La imagen no existe'})
 
-		// (exists) ? res.sendFile(path.resolve(pathFile)) : res.status(404).send({message: 'La imagen no existe'});
+		// if(exists){
+		// 	res.sendFile(path.resolve(pathFile))
+		// }else{
+		// 	res.status(404).send({message: 'La imagen no existe'})
+		// }
+
 	})
-	// res.status(200).send({message: 'Get imagen file'})
 }
 
 function getKeepers(req, res){
@@ -197,15 +183,14 @@ function getKeepers(req, res){
 		if(err){
 			res.status(500).send({message: 'Error en la petición'})
 		}else{
-			if(!users){
-				res.status(404).send({message: 'No hay cuidadores'})
-			}else{
-				res.status(200).send({users})
-			}
+			(!users) ? res.status(404).send({message: 'No hay cuidadores'}) : res.status(200).send({users})
+			// if(!users){
+			// 	res.status(404).send({message: 'No hay cuidadores'})
+			// }else{
+			// 	res.status(200).send({users})
+			// }
 		}
 	})
-	// res.status(200).send({message: 'Get keepers'})
-
 }
 
 module.exports = {
