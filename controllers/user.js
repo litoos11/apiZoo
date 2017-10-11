@@ -97,6 +97,7 @@ function login(req, res) {
 function updateUser(req, res) {
 	let userId = req.params.id,
 			update = req.body
+			delete update.password;
 
 	if(userId != req.user.sub){
 		return res.status(500).send({message: 'No tienes permisor para actualizar el usuario'})
@@ -107,7 +108,7 @@ function updateUser(req, res) {
 			}else{
 				(!userUpadate)
 					? res.status(404).send({message: 'No se ha podido actualizar el usuario'})
-					: res.status(200).send({userUpadate})			
+					: res.status(200).send({user: userUpadate})			
 			}
 		})
 	}
@@ -134,12 +135,7 @@ function uploadImage(req, res) {
 						}else{
 							(!userUpadate)
 								? res.status(404).send({message: 'No se ha podido actualizar el usuario'})
-								: res.status(200).send({user: userUpadate, image: fileName})
-							// if(!userUpadate){
-							// 	res.status(404).send({message: 'No se ha podido actualizar el usuario'})
-							// }else{
-							// 	res.status(200).send({user: userUpadate, image: fileName})
-							// }
+								: res.status(200).send({user: userUpadate, image: fileName})					
 						}
 					})
 				}
@@ -147,12 +143,7 @@ function uploadImage(req, res) {
 			fs.unlink(filePath, (err) => {
 				(err)
 					? res.status(200).send({ message: 'Extensión no Válida y fichero no borrado' })
-					: res.status(200).send({ message: 'Extensión no Válida' })
-				// if(err){
-				// 	res.status(200).send({ message: 'Extensión no Válida y fichero no borrado' })
-				// }else{
-				// 	res.status(200).send({ message: 'Extensión no Válida' })
-				// }
+					: res.status(200).send({ message: 'Extensión no Válida' })				
 			})
 		}
 		
