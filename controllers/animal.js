@@ -13,7 +13,7 @@ function pruebas(req, res){
 }
 
 function saveAnimal(req, res){
-	console.log(req.body)
+	// console.log(req.body)
 	let animal = new Animal(),
 			params = req.body
 
@@ -55,6 +55,7 @@ function getAnimal(req, res){
 	let animalId = req.params.id
 
 	Animal.findById(animalId).populate({path: 'user'}).exec((err, animal) => {
+		// console.log(animal)
 		if(err){
 			res.status(500).send({message: 'Error en la petición'})
 		}else{
@@ -68,6 +69,7 @@ function getAnimal(req, res){
 function updateAnimal(req, res){
 	let animalId = req.params.id,
 			update = req.body
+			// console.log(update)
 
 	Animal.findByIdAndUpdate(animalId, update, {new: true}).exec((err, animalUpdate) => {
 		if(err){
@@ -75,7 +77,7 @@ function updateAnimal(req, res){
 		}else{
 			(!animalUpdate)
 				? res.status(404).send({message: 'No se actualizo el animal'})
-				: res.status(200).send({animalUpdate})
+				: res.status(200).send({animal: animalUpdate})
 		}
 	})
 }
@@ -83,7 +85,6 @@ function updateAnimal(req, res){
 function uploadImage(req, res) {
 	let animalId = req.params.id,
 			fileName = 'No subido...'
-
 	if(req.files){
 		let filePath = req.files.image.path,
 				fileSplit = filePath.split('/'),
@@ -96,7 +97,6 @@ function uploadImage(req, res) {
 				// 	return res.status(500).send({message: 'No tienes permisor para actualizar el usuario'})
 				// }else{
 					Animal.findByIdAndUpdate(animalId, {image: fileName}, {new: true}, (err, animalUpdate) => {
-				console.log(animalUpdate)
 						if(err){
 							res.status(500).send({message: 'Error al actualizar el usuario'})
 						}else{
@@ -122,7 +122,7 @@ function getImageFile(req, res){
 	let imageFile = req.params.imageFile,
 			pathFile = `./uploads/animals/${imageFile}`;
 
-			console.log(pathFile)
+			// console.log(pathFile)
 	fs.exists(pathFile, (exists) => {
 		(exists) 
 			? res.sendFile(path.resolve(pathFile)) 
@@ -139,7 +139,7 @@ function deleteAnimal(req, res){
 		}else{
 			(!animalRemoved)
 				? res.status(404).send({message: 'No se ha borrado el animal'})
-				: res.status(200).send({animalRemoved})
+				: res.status(200).send({animal: animalRemoved})
 		}
 	})
 }
